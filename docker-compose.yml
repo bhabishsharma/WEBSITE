@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: heritage
+      POSTGRES_PASSWORD: heritage
+      POSTGRES_DB: heritage_lens
+    ports:
+      - "5432:5432"
+    volumes:
+      - heritage_db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://heritage:heritage@db:5432/heritage_lens
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+
+volumes:
+  heritage_db_data:
